@@ -31,7 +31,7 @@
 #include "unittest.hpp"
 
 using Tree = VMATree;
-using TNode = Tree::TreapNode;
+using TNode = Tree::TreeNode;
 using NCS = NativeCallStackStorage;
 
 class NMTVMATreeTest : public testing::Test {
@@ -54,7 +54,7 @@ public:
 
   // Utilities
 
-  VMATree::TreapNode* treap_root(VMATree& tree) {
+  VMATree::TreeNode* treap_root(VMATree& tree) {
     return tree._tree._root;
   }
 
@@ -62,7 +62,7 @@ public:
     return tree._tree;
   }
 
-  VMATree::TreapNode* find(VMATree::VMATreap& treap, const VMATree::position key) {
+  VMATree::TreeNode* find(VMATree::VMATreap& treap, const VMATree::position key) {
     return treap.find(treap._root, key);
   }
 
@@ -71,11 +71,11 @@ public:
     return stack;
   }
 
-  VMATree::StateType in_type_of(VMATree::TreapNode* x) {
+  VMATree::StateType in_type_of(VMATree::TreeNode* x) {
     return x->val().in.type();
   }
 
-  VMATree::StateType out_type_of(VMATree::TreapNode* x) {
+  VMATree::StateType out_type_of(VMATree::TreeNode* x) {
     return x->val().out.type();
   }
 
@@ -199,7 +199,7 @@ public:
   };
 
   void call_update_region(const UpdateCallInfo upd) {
-    VMATree::TreapNode n1{upd.req.A, {}, 0}, n2{upd.req.B, {}, 0};
+    VMATree::TreeNode n1{upd.req.A, {}, 0}, n2{upd.req.B, {}, 0};
     n1.val().out= upd.ex_st;
     n2.val().in = n1.val().out;
     Tree tree;
@@ -264,7 +264,7 @@ public:
 
   template <int N>
   void check_tree(Tree& tree, const ExpectedTree<N>& et, int line_no) {
-    using Node = VMATree::TreapNode;
+    using Node = VMATree::TreeNode;
     auto left_released = [&](Node n) -> bool {
       return n.val().in.type() == VMATree::StateType::Released and
             n.val().in.mem_tag() == mtNone;
@@ -994,9 +994,9 @@ TEST_VM_F(NMTVMATreeTest, TestConsistencyWithSimpleTracker) {
         SimpleVMATracker::Info endi = tr->pages[end];
 
         VMATree::VMATreap& treap = this->treap(tree);
-        VMATree::TreapNode* startn = find(treap, start * page_size);
+        VMATree::TreeNode* startn = find(treap, start * page_size);
         ASSERT_NE(nullptr, startn);
-        VMATree::TreapNode* endn = find(treap, (end * page_size) + page_size);
+        VMATree::TreeNode* endn = find(treap, (end * page_size) + page_size);
         ASSERT_NE(nullptr, endn);
 
         const NativeCallStack& start_stack = ncss.get(startn->val().out.reserved_stack());
