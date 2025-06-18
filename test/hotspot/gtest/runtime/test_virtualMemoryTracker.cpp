@@ -50,31 +50,31 @@ namespace {
   };
 }
 
-#define check(rmr, regions) check_inner((rmr), (regions), ARRAY_SIZE(regions), __FILE__, __LINE__)
+#define check(rmr, regions) check_inner((vmt),(rmr), (regions), ARRAY_SIZE(regions), __FILE__, __LINE__)
 
 #define check_empty(rmr)                              \
   do {                                                \
-    check_inner((rmr), nullptr, 0, __FILE__, __LINE__);  \
+    check_inner((vmt),(rmr), nullptr, 0, __FILE__, __LINE__);  \
   } while (false)
 
-static void diagnostic_print(const ReservedMemoryRegion& rmr) {
+static void diagnostic_print(VirtualMemoryTracker& vmt, const ReservedMemoryRegion& rmr) {
   LOG("In reserved region " PTR_FORMAT ", size %X:", p2i(rmr.base()), rmr.size());
-  VirtualMemoryTracker::Instance::tree()->visit_committed_regions(rmr, [&](CommittedMemoryRegion& region) {
+  vmt.tree()->visit_committed_regions(rmr, [&](CommittedMemoryRegion& region) {
     LOG("   committed region: " PTR_FORMAT ", size %X", p2i(region.base()), region.size());
     return true;
   });
 }
 
-static void check_inner(const ReservedMemoryRegion& rmr, R* regions, size_t regions_size, const char* file, int line) {
+static void check_inner(VirtualMemoryTracker& vmt, const ReservedMemoryRegion& rmr, R* regions, size_t regions_size, const char* file, int line) {
   size_t i = 0;
   size_t size = 0;
 
   // Helpful log
-  diagnostic_print(rmr);
+  diagnostic_print(vmt, rmr);
 
 #define WHERE " from " << file << ":" << line
 
-  VirtualMemoryTracker::Instance::tree()->visit_committed_regions(rmr, [&](CommittedMemoryRegion& region) {
+  vmt.tree()->visit_committed_regions(rmr, [&](CommittedMemoryRegion& region) {
     EXPECT_LT(i, regions_size) << WHERE;
     EXPECT_EQ(region.base(), regions[i]._addr) << WHERE;
     EXPECT_EQ(region.size(), regions[i]._size) << WHERE;
@@ -88,24 +88,26 @@ static void check_inner(const ReservedMemoryRegion& rmr, R* regions, size_t regi
 }
 
 class VirtualMemoryTrackerTest {
+  static size_t size;
+  static address addr;
+
+  static address frame0;
+  static address frame1;
+  static address frame2;
+
+  static NativeCallStack stack0;
+  static NativeCallStack stack;
+  static NativeCallStack stack2;
+
 public:
   static void test_add_committed_region_adjacent() {
+    VirtualMemoryTracker vmt(true);
 
-    size_t size  = 0x01000000;
-    ReservedSpace rs = MemoryReserver::reserve(size, mtTest);
-    MemTracker::NmtVirtualMemoryLocker nvml;
+    vmt.add_reserved_region(addr, size, stack, mtTest);
+    RegionsTree* rtree = vmt.tree();
 
-    address addr = (address)rs.base();
-
-    address frame1 = (address)0x1234;
-    address frame2 = (address)0x1235;
-
-    NativeCallStack stack(&frame1, 1);
-    NativeCallStack stack2(&frame2, 1);
-
-    // Fetch the added RMR for the space
-    ReservedMemoryRegion rmr = VirtualMemoryTracker::Instance::tree()->find_reserved_region(addr);
-    RegionsTree* rtree = VirtualMemoryTracker::Instance::tree();
+    // Fetch the added RMR
+    ReservedMemoryRegion rmr = vmt.tree()->find_reserved_region(addr);
 
     ASSERT_EQ(rmr.size(), size);
     ASSERT_EQ(rmr.base(), addr);
@@ -167,22 +169,12 @@ public:
   }
 
   static void test_add_committed_region_adjacent_overlapping() {
-    RegionsTree* rtree = VirtualMemoryTracker::Instance::tree();
-    rtree->tree().remove_all();
+    VirtualMemoryTracker vmt(true);
+    RegionsTree* rtree = vmt.tree();
 
-    size_t size  = 0x01000000;
-    ReservedSpace rs = MemoryReserver::reserve(size, mtTest);
-    MemTracker::NmtVirtualMemoryLocker nvml;
+    vmt.add_reserved_region(addr, size, stack, mtTest);
 
-    address addr = (address)rs.base();
-
-    address frame1 = (address)0x1234;
-    address frame2 = (address)0x1235;
-
-    NativeCallStack stack(&frame1, 1);
-    NativeCallStack stack2(&frame2, 1);
-
-    // Fetch the added RMR for the space
+    // Fetch the added RMR
     ReservedMemoryRegion rmr = rtree->find_reserved_region(addr);
 
     ASSERT_EQ(rmr.size(), size);
@@ -255,24 +247,13 @@ public:
   }
 
   static void test_add_committed_region_overlapping() {
-    RegionsTree* rtree = VirtualMemoryTracker::Instance::tree();
-    rtree->tree().remove_all();
+    VirtualMemoryTracker vmt(true);
+    RegionsTree* tree = vmt.tree();
 
-    size_t size  = 0x01000000;
+    vmt.add_reserved_region(addr, size, stack0, mtTest);
 
-    ReservedSpace rs = MemoryReserver::reserve(size, mtTest);
-    MemTracker::NmtVirtualMemoryLocker nvml;
-
-    address addr = (address)rs.base();
-
-    address frame1 = (address)0x1234;
-    address frame2 = (address)0x1235;
-
-    NativeCallStack stack(&frame1, 1);
-    NativeCallStack stack2(&frame2, 1);
-
-    // Fetch the added RMR for the space
-    ReservedMemoryRegion rmr = rtree->find_reserved_region(addr);
+    // Fetch the added RMR
+    ReservedMemoryRegion rmr = tree->find_reserved_region(addr);
 
 
     ASSERT_EQ(rmr.size(), size);
@@ -284,77 +265,77 @@ public:
     // With same stack
 
     { // Commit one region
-      rtree->commit_region(addr, cs, stack);
+      tree->commit_region(addr, cs, stack);
       R r[] = { {addr, cs} };
       check(rmr, r);
     }
 
     { // Commit the same region
-      rtree->commit_region(addr, cs, stack);
+      tree->commit_region(addr, cs, stack);
       R r[] = { {addr, cs} };
       check(rmr, r);
     }
 
     { // Commit a succeeding region
-      rtree->commit_region(addr + cs, cs, stack);
+      tree->commit_region(addr + cs, cs, stack);
       R r[] = { {addr, 2 * cs} };
       check(rmr, r);
     }
 
     { // Commit  over two regions
-      rtree->commit_region(addr, 2 * cs, stack);
+      tree->commit_region(addr, 2 * cs, stack);
       R r[] = { {addr, 2 * cs} };
       check(rmr, r);
     }
 
     {// Commit first part of a region
-      rtree->commit_region(addr, cs, stack);
+      tree->commit_region(addr, cs, stack);
       R r[] = { {addr, 2 * cs} };
       check(rmr, r);
     }
 
     { // Commit second part of a region
-      rtree->commit_region(addr + cs, cs, stack);
+      tree->commit_region(addr + cs, cs, stack);
       R r[] = { {addr, 2 * cs} };
       check(rmr, r);
     }
 
     { // Commit a third part
-      rtree->commit_region(addr + 2 * cs, cs, stack);
+      tree->commit_region(addr + 2 * cs, cs, stack);
       R r[] = { {addr, 3 * cs} };
       check(rmr, r);
     }
 
     { // Commit in the middle of a region
-      rtree->commit_region(addr + 1 * cs, cs, stack);
+      tree->commit_region(addr + 1 * cs, cs, stack);
       R r[] = { {addr, 3 * cs} };
       check(rmr, r);
     }
 
     // Cleanup
-    rtree->uncommit_region(addr, 3 * cs);
+    tree->uncommit_region(addr, 3 * cs);
     ASSERT_EQ(rmr.committed_size(), 0u);
 
     // With preceding region
 
-    rtree->commit_region(addr,              cs, stack);
-    rtree->commit_region(addr + 2 * cs, 3 * cs, stack);
+    tree->commit_region(addr,              cs, stack);
+    tree->commit_region(addr + 2 * cs, 3 * cs, stack);
 
-    rtree->commit_region(addr + 2 * cs,     cs, stack);
+    tree->commit_region(addr + 2 * cs,     cs, stack);
     {
       R r[] = { {addr,              cs},
                 {addr + 2 * cs, 3 * cs} };
       check(rmr, r);
     }
 
-    rtree->commit_region(addr + 3 * cs,     cs, stack);
+    tree->commit_region(addr + 3 * cs,     cs, stack);
     {
       R r[] = { {addr,              cs},
                 {addr + 2 * cs, 3 * cs} };
       check(rmr, r);
     }
 
-    rtree->commit_region(addr + 4 * cs,     cs, stack);
+    tree->commit_region(addr + 4 * cs,     cs, stack);
     {
       R r[] = { {addr,              cs},
                 {addr + 2 * cs, 3 * cs} };
@@ -362,57 +343,57 @@ public:
     }
 
     // Cleanup
-    rtree->uncommit_region(addr, 5 * cs);
+    tree->uncommit_region(addr, 5 * cs);
     ASSERT_EQ(rmr.committed_size(), 0u);
 
     // With different stacks
 
     { // Commit one region
-      rtree->commit_region(addr, cs, stack);
+      tree->commit_region(addr, cs, stack);
       R r[] = { {addr, cs} };
       check(rmr, r);
     }
 
     { // Commit the same region
-      rtree->commit_region(addr, cs, stack2);
+      tree->commit_region(addr, cs, stack2);
       R r[] = { {addr, cs} };
       check(rmr, r);
     }
 
     { // Commit a succeeding region
-      rtree->commit_region(addr + cs, cs, stack);
+      tree->commit_region(addr + cs, cs, stack);
       R r[] = { {addr,      cs},
                 {addr + cs, cs} };
       check(rmr, r);
     }
 
     { // Commit  over two regions
-      rtree->commit_region(addr, 2 * cs, stack);
+      tree->commit_region(addr, 2 * cs, stack);
       R r[] = { {addr, 2 * cs} };
       check(rmr, r);
     }
 
     {// Commit first part of a region
-      rtree->commit_region(addr, cs, stack2);
+      tree->commit_region(addr, cs, stack2);
       R r[] = { {addr,      cs},
                 {addr + cs, cs} };
       check(rmr, r);
     }
 
     { // Commit second part of a region
-      rtree->commit_region(addr + cs, cs, stack2);
+      tree->commit_region(addr + cs, cs, stack2);
       R r[] = { {addr, 2 * cs} };
       check(rmr, r);
     }
 
     { // Commit a third part
-      rtree->commit_region(addr + 2 * cs, cs, stack2);
+      tree->commit_region(addr + 2 * cs, cs, stack2);
       R r[] = { {addr, 3 * cs} };
       check(rmr, r);
     }
 
     { // Commit in the middle of a region
-      rtree->commit_region(addr + 1 * cs, cs, stack);
+      tree->commit_region(addr + 1 * cs, cs, stack);
       R r[] = { {addr,          cs},
                 {addr +     cs, cs},
                 {addr + 2 * cs, cs} };
@@ -426,27 +407,11 @@ public:
     test_add_committed_region_overlapping();
   }
 
-  template <size_t S>
-  static void fix(R r[S]) {
-
-  }
-
   static void test_remove_uncommitted_region() {
-    RegionsTree* rtree = VirtualMemoryTracker::Instance::tree();
-    rtree->tree().remove_all();
+    VirtualMemoryTracker vmt(true);
+    RegionsTree* rtree = vmt.tree();
 
-    size_t size  = 0x01000000;
-    ReservedSpace rs = MemoryReserver::reserve(size, mtTest);
-    MemTracker::NmtVirtualMemoryLocker nvml;
-
-    address addr = (address)rs.base();
-
-    address frame1 = (address)0x1234;
-    address frame2 = (address)0x1235;
-
-    NativeCallStack stack(&frame1, 1);
-    NativeCallStack stack2(&frame2, 1);
-
+    vmt.add_reserved_region(addr, size, stack0, mtTest);
     // Fetch the added RMR for the space
     ReservedMemoryRegion rmr = rtree->find_reserved_region(addr);
 
@@ -561,18 +526,19 @@ public:
   }
 };
 
-TEST_VM(NMT_VirtualMemoryTracker, add_committed_region) {
-  if (MemTracker::tracking_level() >= NMT_detail) {
-    VirtualMemoryTrackerTest::test_add_committed_region();
-  } else {
-    tty->print_cr("skipped.");
-  }
+size_t VirtualMemoryTrackerTest::size = 0x01000000;
+address VirtualMemoryTrackerTest::addr = (address)0x1000;
+address VirtualMemoryTrackerTest::frame0 = (address)0x4321;
+address VirtualMemoryTrackerTest::frame1 = (address)0x1234;
+address VirtualMemoryTrackerTest::frame2 = (address)0x1235;
+NativeCallStack VirtualMemoryTrackerTest::stack0(&frame0, 1);
+NativeCallStack VirtualMemoryTrackerTest::stack(&frame1, 1);
+NativeCallStack VirtualMemoryTrackerTest::stack2(&frame2, 1);
+
+TEST(NMT_VirtualMemoryTracker, add_committed_region) {
+  VirtualMemoryTrackerTest::test_add_committed_region();
 }
 
-TEST_VM(NMT_VirtualMemoryTracker, remove_uncommitted_region) {
-  if (MemTracker::tracking_level() >= NMT_detail) {
-    VirtualMemoryTrackerTest::test_remove_uncommitted_region();
-  } else {
-    tty->print_cr("skipped.");
-  }
+TEST(NMT_VirtualMemoryTracker, remove_uncommitted_region) {
+  VirtualMemoryTrackerTest::test_remove_uncommitted_region();
 }
