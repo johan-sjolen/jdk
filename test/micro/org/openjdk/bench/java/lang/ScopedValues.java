@@ -213,4 +213,321 @@ public class ScopedValues {
         var ctr = tl_atomicInt.get();
         ctr.setPlain(ctr.getPlain() + 1);
     }
+
+    @Benchmark
+    @OutputTimeUnit(TimeUnit.NANOSECONDS)
+    public void ScopedValuesAreFasT(Blackhole bh) {
+        ScopedValue<Long> sv0 = ScopedValue.newInstance();
+        ScopedValue<Long> sv1 = ScopedValue.newInstance();
+        ScopedValue<Long> sv2 = ScopedValue.newInstance();
+        ScopedValue<Long> sv3 = ScopedValue.newInstance();
+        ScopedValue<Long> sv4 = ScopedValue.newInstance();
+        ScopedValue<Long> sv5 = ScopedValue.newInstance();
+        ScopedValue<Long> sv6 = ScopedValue.newInstance();
+        ScopedValue<Long> sv7 = ScopedValue.newInstance();
+        ScopedValue<Long> sv8 = ScopedValue.newInstance();
+        ScopedValue<Long> sv9 = ScopedValue.newInstance();
+        ScopedValue<Long> sv10 = ScopedValue.newInstance();
+        ScopedValue<Long> sv11 = ScopedValue.newInstance();
+        ScopedValue<Long> sv12 = ScopedValue.newInstance();
+        ScopedValue<Long> sv13 = ScopedValue.newInstance();
+        ScopedValue<Long> sv14 = ScopedValue.newInstance();
+        ScopedValue<Long> sv15 = ScopedValue.newInstance();
+        ScopedValue<Long> sv16 = ScopedValue.newInstance();
+        ScopedValue<Long> sv17 = ScopedValue.newInstance();
+        ScopedValue<Long> sv18 = ScopedValue.newInstance();
+        ScopedValue<Long> sv19 = ScopedValue.newInstance();
+        ScopedValue<Long> sv20 = ScopedValue.newInstance();
+        ScopedValue<Long> sv21 = ScopedValue.newInstance();
+        ScopedValue<Long> sv22 = ScopedValue.newInstance();
+        ScopedValue<Long> sv23 = ScopedValue.newInstance();
+        ScopedValue<Long> sv24 = ScopedValue.newInstance();
+        ScopedValue<Long> sv25 = ScopedValue.newInstance();
+        ScopedValue<Long> sv26 = ScopedValue.newInstance();
+        ScopedValue<Long> sv27 = ScopedValue.newInstance();
+        ScopedValue<Long> sv28 = ScopedValue.newInstance();
+        ScopedValue<Long> sv29 = ScopedValue.newInstance();
+        ScopedValue<Long> sv30 = ScopedValue.newInstance();
+        ScopedValue<Long> sv31 = ScopedValue.newInstance();
+        ScopedValue<Long> sv32 = ScopedValue.newInstance();
+        ScopedValue<Long> sv33 = ScopedValue.newInstance();
+        ScopedValue<Long> sv34 = ScopedValue.newInstance();
+        ScopedValue<Long> sv35 = ScopedValue.newInstance();
+        ScopedValue<Long> sv36 = ScopedValue.newInstance();
+        ScopedValue<Long> sv37 = ScopedValue.newInstance();
+        ScopedValue<Long> sv38 = ScopedValue.newInstance();
+        ScopedValue<Long> sv39 = ScopedValue.newInstance();
+        ScopedValue<Long> sv40 = ScopedValue.newInstance();
+        ScopedValue<Long> sv41 = ScopedValue.newInstance();
+        ScopedValue<Long> sv42 = ScopedValue.newInstance();
+        ScopedValue<Long> sv43 = ScopedValue.newInstance();
+        ScopedValue<Long> sv44 = ScopedValue.newInstance();
+        ScopedValue<Long> sv45 = ScopedValue.newInstance();
+        ScopedValue<Long> sv46 = ScopedValue.newInstance();
+        ScopedValue<Long> sv47 = ScopedValue.newInstance();
+        ScopedValue<Long> sv48 = ScopedValue.newInstance();
+        ScopedValue<Long> sv49 = ScopedValue.newInstance();
+        ScopedValue<Long> sv50 = ScopedValue.newInstance();
+        ScopedValue<Long> sv51 = ScopedValue.newInstance();
+        ScopedValue<Long> sv52 = ScopedValue.newInstance();
+        ScopedValue<Long> sv53 = ScopedValue.newInstance();
+        ScopedValue<Long> sv54 = ScopedValue.newInstance();
+        ScopedValue<Long> sv55 = ScopedValue.newInstance();
+        ScopedValue<Long> sv56 = ScopedValue.newInstance();
+        ScopedValue<Long> sv57 = ScopedValue.newInstance();
+        ScopedValue<Long> sv58 = ScopedValue.newInstance();
+        ScopedValue<Long> sv59 = ScopedValue.newInstance();
+        ScopedValue<Long> sv60 = ScopedValue.newInstance();
+        ScopedValue<Long> sv61 = ScopedValue.newInstance();
+        ScopedValue<Long> sv62 = ScopedValue.newInstance();
+        ScopedValue<Long> sv63 = ScopedValue.newInstance();
+        ScopedValue<Long> sv64 = ScopedValue.newInstance();
+        ScopedValue<Long> sv65 = ScopedValue.newInstance();
+        ScopedValue<Long> sv66 = ScopedValue.newInstance();
+        ScopedValue<Long> sv67 = ScopedValue.newInstance();
+        ScopedValue<Long> sv68 = ScopedValue.newInstance();
+        ScopedValue<Long> sv69 = ScopedValue.newInstance();
+        ScopedValue<Long> sv70 = ScopedValue.newInstance();
+        ScopedValue<Long> sv71 = ScopedValue.newInstance();
+        ScopedValue<Long> sv72 = ScopedValue.newInstance();
+        ScopedValue<Long> sv73 = ScopedValue.newInstance();
+        ScopedValue<Long> sv74 = ScopedValue.newInstance();
+        ScopedValue<Long> sv75 = ScopedValue.newInstance();
+        ScopedValue<Long> sv76 = ScopedValue.newInstance();
+        ScopedValue<Long> sv77 = ScopedValue.newInstance();
+        ScopedValue<Long> sv78 = ScopedValue.newInstance();
+        ScopedValue<Long> sv79 = ScopedValue.newInstance();
+        ScopedValue<Long> sv80 = ScopedValue.newInstance();
+        ScopedValue<Long> sv81 = ScopedValue.newInstance();
+        ScopedValue<Long> sv82 = ScopedValue.newInstance();
+        ScopedValue<Long> sv83 = ScopedValue.newInstance();
+        ScopedValue<Long> sv84 = ScopedValue.newInstance();
+        ScopedValue<Long> sv85 = ScopedValue.newInstance();
+        ScopedValue<Long> sv86 = ScopedValue.newInstance();
+        ScopedValue<Long> sv87 = ScopedValue.newInstance();
+        ScopedValue<Long> sv88 = ScopedValue.newInstance();
+        ScopedValue<Long> sv89 = ScopedValue.newInstance();
+        ScopedValue<Long> sv90 = ScopedValue.newInstance();
+        ScopedValue<Long> sv91 = ScopedValue.newInstance();
+        ScopedValue<Long> sv92 = ScopedValue.newInstance();
+        ScopedValue<Long> sv93 = ScopedValue.newInstance();
+        ScopedValue<Long> sv94 = ScopedValue.newInstance();
+        ScopedValue<Long> sv95 = ScopedValue.newInstance();
+        ScopedValue<Long> sv96 = ScopedValue.newInstance();
+        ScopedValue<Long> sv97 = ScopedValue.newInstance();
+        ScopedValue<Long> sv98 = ScopedValue.newInstance();
+        ScopedValue<Long> sv99 = ScopedValue.newInstance();
+        ScopedValue<String> MISSING = ScopedValue.newInstance();
+        bh.consume(MISSING.orElse("hello world"));
+    }
+
+    @Benchmark
+    @OutputTimeUnit(TimeUnit.NANOSECONDS)
+    public void ScopedValuesAreSlow(Blackhole bh) {
+        ScopedValue<Long> sv0 = ScopedValue.newInstance();
+        ScopedValue<Long> sv1 = ScopedValue.newInstance();
+        ScopedValue<Long> sv2 = ScopedValue.newInstance();
+        ScopedValue<Long> sv3 = ScopedValue.newInstance();
+        ScopedValue<Long> sv4 = ScopedValue.newInstance();
+        ScopedValue<Long> sv5 = ScopedValue.newInstance();
+        ScopedValue<Long> sv6 = ScopedValue.newInstance();
+        ScopedValue<Long> sv7 = ScopedValue.newInstance();
+        ScopedValue<Long> sv8 = ScopedValue.newInstance();
+        ScopedValue<Long> sv9 = ScopedValue.newInstance();
+        ScopedValue<Long> sv10 = ScopedValue.newInstance();
+        ScopedValue<Long> sv11 = ScopedValue.newInstance();
+        ScopedValue<Long> sv12 = ScopedValue.newInstance();
+        ScopedValue<Long> sv13 = ScopedValue.newInstance();
+        ScopedValue<Long> sv14 = ScopedValue.newInstance();
+        ScopedValue<Long> sv15 = ScopedValue.newInstance();
+        ScopedValue<Long> sv16 = ScopedValue.newInstance();
+        ScopedValue<Long> sv17 = ScopedValue.newInstance();
+        ScopedValue<Long> sv18 = ScopedValue.newInstance();
+        ScopedValue<Long> sv19 = ScopedValue.newInstance();
+        ScopedValue<Long> sv20 = ScopedValue.newInstance();
+        ScopedValue<Long> sv21 = ScopedValue.newInstance();
+        ScopedValue<Long> sv22 = ScopedValue.newInstance();
+        ScopedValue<Long> sv23 = ScopedValue.newInstance();
+        ScopedValue<Long> sv24 = ScopedValue.newInstance();
+        ScopedValue<Long> sv25 = ScopedValue.newInstance();
+        ScopedValue<Long> sv26 = ScopedValue.newInstance();
+        ScopedValue<Long> sv27 = ScopedValue.newInstance();
+        ScopedValue<Long> sv28 = ScopedValue.newInstance();
+        ScopedValue<Long> sv29 = ScopedValue.newInstance();
+        ScopedValue<Long> sv30 = ScopedValue.newInstance();
+        ScopedValue<Long> sv31 = ScopedValue.newInstance();
+        ScopedValue<Long> sv32 = ScopedValue.newInstance();
+        ScopedValue<Long> sv33 = ScopedValue.newInstance();
+        ScopedValue<Long> sv34 = ScopedValue.newInstance();
+        ScopedValue<Long> sv35 = ScopedValue.newInstance();
+        ScopedValue<Long> sv36 = ScopedValue.newInstance();
+        ScopedValue<Long> sv37 = ScopedValue.newInstance();
+        ScopedValue<Long> sv38 = ScopedValue.newInstance();
+        ScopedValue<Long> sv39 = ScopedValue.newInstance();
+        ScopedValue<Long> sv40 = ScopedValue.newInstance();
+        ScopedValue<Long> sv41 = ScopedValue.newInstance();
+        ScopedValue<Long> sv42 = ScopedValue.newInstance();
+        ScopedValue<Long> sv43 = ScopedValue.newInstance();
+        ScopedValue<Long> sv44 = ScopedValue.newInstance();
+        ScopedValue<Long> sv45 = ScopedValue.newInstance();
+        ScopedValue<Long> sv46 = ScopedValue.newInstance();
+        ScopedValue<Long> sv47 = ScopedValue.newInstance();
+        ScopedValue<Long> sv48 = ScopedValue.newInstance();
+        ScopedValue<Long> sv49 = ScopedValue.newInstance();
+        ScopedValue<Long> sv50 = ScopedValue.newInstance();
+        ScopedValue<Long> sv51 = ScopedValue.newInstance();
+        ScopedValue<Long> sv52 = ScopedValue.newInstance();
+        ScopedValue<Long> sv53 = ScopedValue.newInstance();
+        ScopedValue<Long> sv54 = ScopedValue.newInstance();
+        ScopedValue<Long> sv55 = ScopedValue.newInstance();
+        ScopedValue<Long> sv56 = ScopedValue.newInstance();
+        ScopedValue<Long> sv57 = ScopedValue.newInstance();
+        ScopedValue<Long> sv58 = ScopedValue.newInstance();
+        ScopedValue<Long> sv59 = ScopedValue.newInstance();
+        ScopedValue<Long> sv60 = ScopedValue.newInstance();
+        ScopedValue<Long> sv61 = ScopedValue.newInstance();
+        ScopedValue<Long> sv62 = ScopedValue.newInstance();
+        ScopedValue<Long> sv63 = ScopedValue.newInstance();
+        ScopedValue<Long> sv64 = ScopedValue.newInstance();
+        ScopedValue<Long> sv65 = ScopedValue.newInstance();
+        ScopedValue<Long> sv66 = ScopedValue.newInstance();
+        ScopedValue<Long> sv67 = ScopedValue.newInstance();
+        ScopedValue<Long> sv68 = ScopedValue.newInstance();
+        ScopedValue<Long> sv69 = ScopedValue.newInstance();
+        ScopedValue<Long> sv70 = ScopedValue.newInstance();
+        ScopedValue<Long> sv71 = ScopedValue.newInstance();
+        ScopedValue<Long> sv72 = ScopedValue.newInstance();
+        ScopedValue<Long> sv73 = ScopedValue.newInstance();
+        ScopedValue<Long> sv74 = ScopedValue.newInstance();
+        ScopedValue<Long> sv75 = ScopedValue.newInstance();
+        ScopedValue<Long> sv76 = ScopedValue.newInstance();
+        ScopedValue<Long> sv77 = ScopedValue.newInstance();
+        ScopedValue<Long> sv78 = ScopedValue.newInstance();
+        ScopedValue<Long> sv79 = ScopedValue.newInstance();
+        ScopedValue<Long> sv80 = ScopedValue.newInstance();
+        ScopedValue<Long> sv81 = ScopedValue.newInstance();
+        ScopedValue<Long> sv82 = ScopedValue.newInstance();
+        ScopedValue<Long> sv83 = ScopedValue.newInstance();
+        ScopedValue<Long> sv84 = ScopedValue.newInstance();
+        ScopedValue<Long> sv85 = ScopedValue.newInstance();
+        ScopedValue<Long> sv86 = ScopedValue.newInstance();
+        ScopedValue<Long> sv87 = ScopedValue.newInstance();
+        ScopedValue<Long> sv88 = ScopedValue.newInstance();
+        ScopedValue<Long> sv89 = ScopedValue.newInstance();
+        ScopedValue<Long> sv90 = ScopedValue.newInstance();
+        ScopedValue<Long> sv91 = ScopedValue.newInstance();
+        ScopedValue<Long> sv92 = ScopedValue.newInstance();
+        ScopedValue<Long> sv93 = ScopedValue.newInstance();
+        ScopedValue<Long> sv94 = ScopedValue.newInstance();
+        ScopedValue<Long> sv95 = ScopedValue.newInstance();
+        ScopedValue<Long> sv96 = ScopedValue.newInstance();
+        ScopedValue<Long> sv97 = ScopedValue.newInstance();
+        ScopedValue<Long> sv98 = ScopedValue.newInstance();
+        ScopedValue<Long> sv99 = ScopedValue.newInstance();
+        ScopedValue<String> MISSING = ScopedValue.newInstance();
+
+        ScopedValue.where(st.sv0, 0L).run(() -> {
+ScopedValue.where(st.sv1, 1L).run(() -> {
+ScopedValue.where(st.sv2, 2L).run(() -> {
+ScopedValue.where(st.sv3, 3L).run(() -> {
+ScopedValue.where(st.sv4, 4L).run(() -> {
+ScopedValue.where(st.sv5, 5L).run(() -> {
+ScopedValue.where(st.sv6, 6L).run(() -> {
+ScopedValue.where(st.sv7, 7L).run(() -> {
+ScopedValue.where(st.sv8, 8L).run(() -> {
+ScopedValue.where(st.sv9, 9L).run(() -> {
+ScopedValue.where(st.sv10, 10L).run(() -> {
+ScopedValue.where(st.sv11, 11L).run(() -> {
+ScopedValue.where(st.sv12, 12L).run(() -> {
+ScopedValue.where(st.sv13, 13L).run(() -> {
+ScopedValue.where(st.sv14, 14L).run(() -> {
+ScopedValue.where(st.sv15, 15L).run(() -> {
+ScopedValue.where(st.sv16, 16L).run(() -> {
+ScopedValue.where(st.sv17, 17L).run(() -> {
+ScopedValue.where(st.sv18, 18L).run(() -> {
+ScopedValue.where(st.sv19, 19L).run(() -> {
+ScopedValue.where(st.sv20, 20L).run(() -> {
+ScopedValue.where(st.sv21, 21L).run(() -> {
+ScopedValue.where(st.sv22, 22L).run(() -> {
+ScopedValue.where(st.sv23, 23L).run(() -> {
+ScopedValue.where(st.sv24, 24L).run(() -> {
+ScopedValue.where(st.sv25, 25L).run(() -> {
+ScopedValue.where(st.sv26, 26L).run(() -> {
+ScopedValue.where(st.sv27, 27L).run(() -> {
+ScopedValue.where(st.sv28, 28L).run(() -> {
+ScopedValue.where(st.sv29, 29L).run(() -> {
+ScopedValue.where(st.sv30, 30L).run(() -> {
+ScopedValue.where(st.sv31, 31L).run(() -> {
+ScopedValue.where(st.sv32, 32L).run(() -> {
+ScopedValue.where(st.sv33, 33L).run(() -> {
+ScopedValue.where(st.sv34, 34L).run(() -> {
+ScopedValue.where(st.sv35, 35L).run(() -> {
+ScopedValue.where(st.sv36, 36L).run(() -> {
+ScopedValue.where(st.sv37, 37L).run(() -> {
+ScopedValue.where(st.sv38, 38L).run(() -> {
+ScopedValue.where(st.sv39, 39L).run(() -> {
+ScopedValue.where(st.sv40, 40L).run(() -> {
+ScopedValue.where(st.sv41, 41L).run(() -> {
+ScopedValue.where(st.sv42, 42L).run(() -> {
+ScopedValue.where(st.sv43, 43L).run(() -> {
+ScopedValue.where(st.sv44, 44L).run(() -> {
+ScopedValue.where(st.sv45, 45L).run(() -> {
+ScopedValue.where(st.sv46, 46L).run(() -> {
+ScopedValue.where(st.sv47, 47L).run(() -> {
+ScopedValue.where(st.sv48, 48L).run(() -> {
+ScopedValue.where(st.sv49, 49L).run(() -> {
+ScopedValue.where(st.sv50, 50L).run(() -> {
+ScopedValue.where(st.sv51, 51L).run(() -> {
+ScopedValue.where(st.sv52, 52L).run(() -> {
+ScopedValue.where(st.sv53, 53L).run(() -> {
+ScopedValue.where(st.sv54, 54L).run(() -> {
+ScopedValue.where(st.sv55, 55L).run(() -> {
+ScopedValue.where(st.sv56, 56L).run(() -> {
+ScopedValue.where(st.sv57, 57L).run(() -> {
+ScopedValue.where(st.sv58, 58L).run(() -> {
+ScopedValue.where(st.sv59, 59L).run(() -> {
+ScopedValue.where(st.sv60, 60L).run(() -> {
+ScopedValue.where(st.sv61, 61L).run(() -> {
+ScopedValue.where(st.sv62, 62L).run(() -> {
+ScopedValue.where(st.sv63, 63L).run(() -> {
+ScopedValue.where(st.sv64, 64L).run(() -> {
+ScopedValue.where(st.sv65, 65L).run(() -> {
+ScopedValue.where(st.sv66, 66L).run(() -> {
+ScopedValue.where(st.sv67, 67L).run(() -> {
+ScopedValue.where(st.sv68, 68L).run(() -> {
+ScopedValue.where(st.sv69, 69L).run(() -> {
+ScopedValue.where(st.sv70, 70L).run(() -> {
+ScopedValue.where(st.sv71, 71L).run(() -> {
+ScopedValue.where(st.sv72, 72L).run(() -> {
+ScopedValue.where(st.sv73, 73L).run(() -> {
+ScopedValue.where(st.sv74, 74L).run(() -> {
+ScopedValue.where(st.sv75, 75L).run(() -> {
+ScopedValue.where(st.sv76, 76L).run(() -> {
+ScopedValue.where(st.sv77, 77L).run(() -> {
+ScopedValue.where(st.sv78, 78L).run(() -> {
+ScopedValue.where(st.sv79, 79L).run(() -> {
+ScopedValue.where(st.sv80, 80L).run(() -> {
+ScopedValue.where(st.sv81, 81L).run(() -> {
+ScopedValue.where(st.sv82, 82L).run(() -> {
+ScopedValue.where(st.sv83, 83L).run(() -> {
+ScopedValue.where(st.sv84, 84L).run(() -> {
+ScopedValue.where(st.sv85, 85L).run(() -> {
+ScopedValue.where(st.sv86, 86L).run(() -> {
+ScopedValue.where(st.sv87, 87L).run(() -> {
+ScopedValue.where(st.sv88, 88L).run(() -> {
+ScopedValue.where(st.sv89, 89L).run(() -> {
+ScopedValue.where(st.sv90, 90L).run(() -> {
+ScopedValue.where(st.sv91, 91L).run(() -> {
+ScopedValue.where(st.sv92, 92L).run(() -> {
+ScopedValue.where(st.sv93, 93L).run(() -> {
+ScopedValue.where(st.sv94, 94L).run(() -> {
+ScopedValue.where(st.sv95, 95L).run(() -> {
+ScopedValue.where(st.sv96, 96L).run(() -> {
+ScopedValue.where(st.sv97, 97L).run(() -> {
+ScopedValue.where(st.sv98, 98L).run(() -> {
+ScopedValue.where(st.sv99, 99L).run(() -> {
+    bh.consume(MISSING.orElse("hello world"));
+            });});});});});});});});});});});});});});});});});});});});});});});});});});});});});});});});});});});});});});});});});});});});});});});});});});});});});});});});});});});});});});});});});});});});});});});});});});});});});});});});});});});});});});});});});});});});});});});});});});});});
+    }
 }
+
