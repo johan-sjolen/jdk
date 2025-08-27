@@ -128,6 +128,10 @@ int os::vsnprintf(char* buf, size_t len, const char* fmt, va_list args) {
   return result;
 }
 
+volatile int os::malloc_peak = 0;
+volatile int os::malloc_count = 0;
+volatile int os::free_count = 0;
+
 // Fill in buffer with current local time as an ISO-8601 string.
 // E.g., YYYY-MM-DDThh:mm:ss.mmm+zzzz.
 // Returns buffer, or null if it failed.
@@ -632,6 +636,8 @@ void* os::malloc(size_t size, MemTag mem_tag, const NativeCallStack& stack) {
   // Special handling for NMT preinit phase before arguments are parsed
   void* rc = nullptr;
   if (NMTPreInit::handle_malloc(&rc, size)) {
+    Atomic::inc(&malloc_count);
+    Atomic::add(&malloc_peak, (int)size);
     // No need to fill with 0 because CDS static dumping doesn't use these
     // early allocations.
     return rc;
@@ -767,6 +773,7 @@ void  os::free(void *memblock) {
 
   // Special handling for NMT preinit phase before arguments are parsed
   if (NMTPreInit::handle_free(memblock)) {
+    Atomic::inc(&free_count);
     return;
   }
 

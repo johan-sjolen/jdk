@@ -924,6 +924,9 @@ class os: AllStatic {
   // Return: number of stack frames captured.
   static int get_native_stack(address* stack, int size, int toSkip = 0);
 
+  static volatile int malloc_peak;
+  static volatile int malloc_count;
+  static volatile int free_count;
   // General allocation (must be MT-safe)
   static void* malloc  (size_t size, MemTag mem_tag, const NativeCallStack& stack);
   static void* malloc  (size_t size, MemTag mem_tag);
