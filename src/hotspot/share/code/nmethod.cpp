@@ -1505,13 +1505,10 @@ nmethod::nmethod(
     assert(nmethod_size == data_end() - header_begin(), "wrong nmethod size: %d != %d",
            nmethod_size, (int)(code_end() - header_begin()));
 
-    _immutable_data_size  = immutable_data_size;
-    if (immutable_data_size > 0) {
-      assert(immutable_data != nullptr, "required");
-      _immutable_data     = immutable_data;
-    } else {
-      _immutable_data     = nullptr;
-    }
+    assert(immutable_data != nullptr || immutable_data_size > 0, "required");
+    _immutable_data_size = immutable_data_size;
+    _immutable_data = immutable_data;
+
     CHECKED_CAST(_nul_chk_table_offset, uint16_t, (align_up((int)dependencies->size_in_bytes(), oopSize)));
     CHECKED_CAST(_handler_table_offset, uint16_t, (_nul_chk_table_offset + align_up(nul_chk_table->size_in_bytes(), oopSize)));
     _scopes_pcs_offset    = _handler_table_offset + align_up(handler_table->size_in_bytes(), oopSize);
