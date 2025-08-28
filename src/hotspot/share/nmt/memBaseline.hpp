@@ -72,14 +72,14 @@ class MemBaseline {
 
   // Allocation sites information
   // Malloc allocation sites
-  LinkedListImpl<MallocSite>                  _malloc_sites;
+  LinkedListImpl<MallocSite, AnyObj::ARENA>                  _malloc_sites;
 
   // All virtual memory allocations
-  LinkedListImpl<ReservedMemoryRegion>        _virtual_memory_allocations;
+  LinkedListImpl<ReservedMemoryRegion, AnyObj::ARENA>        _virtual_memory_allocations;
 
   // Virtual memory allocations by allocation sites, always in by_address
   // order
-  LinkedListImpl<VirtualMemoryAllocationSite> _virtual_memory_sites;
+  LinkedListImpl<VirtualMemoryAllocationSite, AnyObj::ARENA> _virtual_memory_sites;
 
   SortingOrder         _malloc_sites_order;
   SortingOrder         _virtual_memory_sites_order;
