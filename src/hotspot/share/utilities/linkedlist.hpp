@@ -153,10 +153,12 @@ template <class E, AnyObj::allocation_type T = AnyObj::C_HEAP,
   virtual void clear() {
     LinkedListNode<E>* p = this->head();
     this->set_head(nullptr);
-    while (p != nullptr) {
-      LinkedListNode<E>* to_delete = p;
-      p = p->next();
-      delete_node(to_delete);
+    if (T == AnyObj::C_HEAP) {
+      while (p != nullptr) {
+        LinkedListNode<E>* to_delete = p;
+        p = p->next();
+        delete_node(to_delete);
+      }
     }
   }
 

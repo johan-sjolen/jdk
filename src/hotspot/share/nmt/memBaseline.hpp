@@ -25,6 +25,7 @@
 #ifndef SHARE_NMT_MEMBASELINE_HPP
 #define SHARE_NMT_MEMBASELINE_HPP
 
+#include "memory/arena.hpp"
 #include "memory/metaspaceStats.hpp"
 #include "nmt/mallocSiteTable.hpp"
 #include "nmt/mallocTracker.hpp"
@@ -66,6 +67,9 @@ class MemBaseline {
   size_t                 _array_class_count;
   size_t                 _thread_count;
 
+  // Back the memory for the linked lists with an arena
+  Arena _arena;
+
   // Allocation sites information
   // Malloc allocation sites
   LinkedListImpl<MallocSite>                  _malloc_sites;
@@ -86,6 +90,10 @@ class MemBaseline {
   // create a memory baseline
   MemBaseline():
     _instance_class_count(0), _array_class_count(0), _thread_count(0),
+    _arena(mtNMT),
+    _malloc_sites(&_arena),
+    _virtual_memory_allocations(&_arena),
+    _virtual_memory_sites(&_arena),
     _baseline_type(Not_baselined) {
   }
 
@@ -186,6 +194,7 @@ class MemBaseline {
     _malloc_sites.clear();
     _virtual_memory_sites.clear();
     _virtual_memory_allocations.clear();
+    _arena.destruct_contents();
   }
 
  private:
