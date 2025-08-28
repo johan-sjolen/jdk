@@ -624,20 +624,20 @@ public:
 
   // immutable data
   address immutable_data_begin  () const { return           _immutable_data; }
-  address immutable_data_end    () const { return           _immutable_data + _immutable_data_size ; }
+  address immutable_data_end    () const { return           _immutable_data == nullptr ? nullptr : _immutable_data + _immutable_data_size ; }
   address dependencies_begin    () const { return           _immutable_data; }
-  address dependencies_end      () const { return           _immutable_data + _nul_chk_table_offset; }
-  address nul_chk_table_begin   () const { return           _immutable_data + _nul_chk_table_offset; }
-  address nul_chk_table_end     () const { return           _immutable_data + _handler_table_offset; }
-  address handler_table_begin   () const { return           _immutable_data + _handler_table_offset; }
-  address handler_table_end     () const { return           _immutable_data + _scopes_pcs_offset   ; }
-  PcDesc* scopes_pcs_begin      () const { return (PcDesc*)(_immutable_data + _scopes_pcs_offset)  ; }
-  PcDesc* scopes_pcs_end        () const { return (PcDesc*)(_immutable_data + _scopes_data_offset) ; }
-  address scopes_data_begin     () const { return           _immutable_data + _scopes_data_offset  ; }
+  address dependencies_end      () const { return           _immutable_data == nullptr ? nullptr : _immutable_data + _nul_chk_table_offset; }
+  address nul_chk_table_begin   () const { return           _immutable_data == nullptr ? nullptr : _immutable_data + _nul_chk_table_offset; }
+  address nul_chk_table_end     () const { return           _immutable_data == nullptr ? nullptr : _immutable_data + _handler_table_offset; }
+  address handler_table_begin   () const { return           _immutable_data == nullptr ? nullptr : _immutable_data + _handler_table_offset; }
+  address handler_table_end     () const { return           _immutable_data == nullptr ? nullptr : _immutable_data + _scopes_pcs_offset   ; }
+  PcDesc* scopes_pcs_begin      () const { return           _immutable_data == nullptr ? nullptr :  (PcDesc*)(_immutable_data + _scopes_pcs_offset)  ; }
+  PcDesc* scopes_pcs_end        () const { return           _immutable_data == nullptr ? nullptr : (PcDesc*)(_immutable_data + _scopes_data_offset) ; }
+  address scopes_data_begin     () const { return           _immutable_data == nullptr ? nullptr : _immutable_data + _scopes_data_offset  ; }
 
 #if INCLUDE_JVMCI
-  address scopes_data_end       () const { return           _immutable_data + _speculations_offset ; }
-  address speculations_begin    () const { return           _immutable_data + _speculations_offset ; }
+  address scopes_data_end       () const { return           _immutable_data == nullptr ? nullptr : _immutable_data + _speculations_offset ; }
+  address speculations_begin    () const { return           _immutable_data == nullptr ? nullptr : _immutable_data + _speculations_offset ; }
   address speculations_end      () const { return            immutable_data_end(); }
 #else
   address scopes_data_end       () const { return            immutable_data_end(); }
