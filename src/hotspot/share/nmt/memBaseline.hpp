@@ -90,7 +90,7 @@ class MemBaseline {
   // create a memory baseline
   MemBaseline():
     _instance_class_count(0), _array_class_count(0), _thread_count(0),
-    _arena(mtNMT),
+    _arena(mtBaseline),
     _malloc_sites(&_arena),
     _virtual_memory_allocations(&_arena),
     _virtual_memory_sites(&_arena),
