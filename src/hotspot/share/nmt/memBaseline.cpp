@@ -71,7 +71,7 @@ int compare_malloc_site_and_tag(const MallocSite& s1, const MallocSite& s2) {
 }
 
 int compare_virtual_memory_site(const VirtualMemoryAllocationSite& s1,
-  const VirtualMemoryAllocationSite& s2) {
+ const VirtualMemoryAllocationSite& s2) {
   return s1.call_stack()->compare(*s2.call_stack());
 }
 
@@ -80,7 +80,7 @@ int compare_virtual_memory_site(const VirtualMemoryAllocationSite& s1,
  */
 class MallocAllocationSiteWalker : public MallocSiteWalker {
  private:
-  SortedLinkedList<MallocSite, compare_malloc_size> _malloc_sites;
+  SortedLinkedList<MallocSite, compare_malloc_size, AnyObj::C_HEAP, mtBaseline> _malloc_sites;
 
   // Entries in MallocSiteTable with size = 0 and count = 0,
   // when the malloc site is not longer there.
@@ -200,7 +200,7 @@ int compare_allocation_site(const VirtualMemoryAllocationSite& s1,
 }
 
 bool MemBaseline::aggregate_virtual_memory_allocation_sites() {
-  SortedLinkedList<VirtualMemoryAllocationSite, compare_allocation_site> allocation_sites;
+  SortedLinkedList<VirtualMemoryAllocationSite, compare_allocation_site, AnyObj::C_HEAP, mtBaseline> allocation_sites;
 
   VirtualMemoryAllocationIterator itr = virtual_memory_allocations();
   const ReservedMemoryRegion* rgn;
@@ -261,7 +261,7 @@ VirtualMemorySiteIterator MemBaseline::virtual_memory_sites(SortingOrder order) 
 // Sorting allocations sites in different orders
 void MemBaseline::malloc_sites_to_size_order() {
   if (_malloc_sites_order != by_size) {
-    SortedLinkedList<MallocSite, compare_malloc_size> tmp;
+    SortedLinkedList<MallocSite, compare_malloc_size, AnyObj::C_HEAP, mtBaseline> tmp;
 
     // Add malloc sites to sorted linked list to sort into size order
     tmp.move(&_malloc_sites);
@@ -273,7 +273,7 @@ void MemBaseline::malloc_sites_to_size_order() {
 
 void MemBaseline::malloc_sites_to_allocation_site_order() {
   if (_malloc_sites_order != by_site && _malloc_sites_order != by_site_and_tag) {
-    SortedLinkedList<MallocSite, compare_malloc_site> tmp;
+    SortedLinkedList<MallocSite, compare_malloc_site, AnyObj::C_HEAP, mtBaseline> tmp;
     // Add malloc sites to sorted linked list to sort into site (address) order
     tmp.move(&_malloc_sites);
     _malloc_sites.set_head(tmp.head());
@@ -284,7 +284,7 @@ void MemBaseline::malloc_sites_to_allocation_site_order() {
 
 void MemBaseline::malloc_sites_to_allocation_site_and_tag_order() {
   if (_malloc_sites_order != by_site_and_tag) {
-    SortedLinkedList<MallocSite, compare_malloc_site_and_tag> tmp;
+    SortedLinkedList<MallocSite, compare_malloc_site_and_tag, AnyObj::C_HEAP, mtBaseline> tmp;
     // Add malloc sites to sorted linked list to sort into site (address) order
     tmp.move(&_malloc_sites);
     _malloc_sites.set_head(tmp.head());
@@ -295,7 +295,7 @@ void MemBaseline::malloc_sites_to_allocation_site_and_tag_order() {
 
 void MemBaseline::virtual_memory_sites_to_size_order() {
   if (_virtual_memory_sites_order != by_size) {
-    SortedLinkedList<VirtualMemoryAllocationSite, compare_virtual_memory_size> tmp;
+    SortedLinkedList<VirtualMemoryAllocationSite, compare_virtual_memory_size, AnyObj::C_HEAP, mtBaseline> tmp;
 
     tmp.move(&_virtual_memory_sites);
 
@@ -307,7 +307,7 @@ void MemBaseline::virtual_memory_sites_to_size_order() {
 
 void MemBaseline::virtual_memory_sites_to_reservation_site_order() {
   if (_virtual_memory_sites_order != by_size) {
-    SortedLinkedList<VirtualMemoryAllocationSite, compare_virtual_memory_site> tmp;
+    SortedLinkedList<VirtualMemoryAllocationSite, compare_virtual_memory_site, AnyObj::C_HEAP, mtBaseline> tmp;
 
     tmp.move(&_virtual_memory_sites);
 
