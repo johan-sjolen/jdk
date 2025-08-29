@@ -829,8 +829,6 @@ class GrowableArrayCHeap : public GrowableArrayWithAllocator<E, GrowableArrayCHe
     return (E*)GrowableArrayCHeapAllocator::allocate(max, sizeof(E), mem_tag);
   }
 
-  NONCOPYABLE(GrowableArrayCHeap);
-
   E* allocate() {
     return allocate(this->_capacity, MT);
   }
@@ -850,6 +848,16 @@ public:
           allocate(initial_capacity, MT),
           initial_capacity, initial_len, filler) {}
 
+  GrowableArrayCHeap(GrowableArrayCHeap const& other) :
+    GrowableArrayWithAllocator<E, GrowableArrayCHeap<E, MT> >(
+        allocate(other._capacity, MT),
+        other._capacity, other._len, E()) {
+    for (int i = 0; i < other.length(); i++) {
+      this->at(i) = other.at(i);
+    }
+  }
+
+  GrowableArrayCHeap& operator=(GrowableArrayCHeap const&) = delete;
   ~GrowableArrayCHeap() {
     this->clear_and_deallocate();
   }
