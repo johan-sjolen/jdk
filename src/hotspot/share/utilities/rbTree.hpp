@@ -459,7 +459,11 @@ public:
     assert(std::is_copy_constructible<K>::value, "Key type must be copy-constructible when copying a RBTree");
     assert(std::is_copy_constructible<V>::value, "Value type must be copy-constructible when copying a RBTree");
     enum Dir { Left, Right };
-    struct node_pair { const RBNode<K, V>* current; RBNode<K, V>* other_parent; Dir dir; };
+    struct node_pair {
+      const RBNode<K, V>* current;
+      RBNode<K, V>* other_parent;
+      Dir dir;
+    };
     struct stack {
       node_pair s[64];
       int idx = 0;
@@ -478,8 +482,8 @@ public:
     if (other._root == nullptr) return false;
     ((RBNode<K, V>*)other._root)->val() = root->val();
 
-    visit_stack.push({this->_root->_left, other._root, Left});
-    visit_stack.push({this->_root->_right, other._root, Right});
+    visit_stack.push(node_pair{this->_root->_left, other._root, Left});
+    visit_stack.push(node_pair{this->_root->_right, other._root, Right});
     while (!visit_stack.is_empty()) {
       node_pair n = visit_stack.pop();
       if (n.current == nullptr) continue;
@@ -495,8 +499,8 @@ public:
       }
       new_node->set_parent(n.other_parent);
       new_node->_parent |= n.current->_parent & 0x1;
-      visit_stack.push({n.current->_left, new_node, Left});
-      visit_stack.push({n.current->_right, new_node, Right});
+      visit_stack.push(node_pair{n.current->_left, new_node, Left});
+      visit_stack.push(node_pair{n.current->_right, new_node, Right});
     }
     return true;
   }
