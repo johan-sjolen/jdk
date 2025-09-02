@@ -482,8 +482,8 @@ public:
     if (other._root == nullptr) return false;
     ((RBNode<K, V>*)other._root)->val() = root->val();
 
-    visit_stack.push(node_pair{(RBNode<K, V>*)this->_root->_left, other._root, Left});
-    visit_stack.push(node_pair{(RBNode<K, V>*)this->_root->_right, other._root, Right});
+    visit_stack.push(node_pair{(RBNode<K, V>*)this->_root->_left, (RBNode<K, V>*)other._root, Left});
+    visit_stack.push(node_pair{(RBNode<K, V>*)this->_root->_right, (RBNode<K, V>*)other._root, Right});
     while (!visit_stack.is_empty()) {
       node_pair n = visit_stack.pop();
       if (n.current == nullptr) continue;
