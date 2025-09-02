@@ -482,8 +482,8 @@ public:
     if (other._root == nullptr) return false;
     ((RBNode<K, V>*)other._root)->val() = root->val();
 
-    visit_stack.push(node_pair{this->_root->_left, other._root, Left});
-    visit_stack.push(node_pair{this->_root->_right, other._root, Right});
+    visit_stack.push(node_pair{(RBNode<K, V>*)this->_root->_left, other._root, Left});
+    visit_stack.push(node_pair{(RBNode<K, V>*)this->_root->_right, other._root, Right});
     while (!visit_stack.is_empty()) {
       node_pair n = visit_stack.pop();
       if (n.current == nullptr) continue;
@@ -499,8 +499,8 @@ public:
       }
       new_node->set_parent(n.other_parent);
       new_node->_parent |= n.current->_parent & 0x1;
-      visit_stack.push(node_pair{n.current->_left, new_node, Left});
-      visit_stack.push(node_pair{n.current->_right, new_node, Right});
+      visit_stack.push(node_pair{(RBNode<K, V>*)n.current->_left, new_node, Left});
+      visit_stack.push(node_pair{(RBNode<K, V>*)n.current->_right, new_node, Right});
     }
     return true;
   }
