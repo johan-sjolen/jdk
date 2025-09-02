@@ -476,7 +476,7 @@ public:
     RBNode<K, V>* root = (RBNode<K, V>*)this->_root;
     (RBNode<K, V>*&)other._root = other.allocate_node(root->key());
     if (other._root == nullptr) return false;
-    (RBNode<K, V>*)other._root->val() = root->val();
+    ((RBNode<K, V>*)other._root)->val() = root->val();
 
     visit_stack.push({this->_root->_left, other._root, Left});
     visit_stack.push({this->_root->_right, other._root, Right});
