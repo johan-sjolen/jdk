@@ -132,7 +132,10 @@ bool MemTracker::print_containing_region(const void* p, outputStream* out) {
 void MemTracker::report(bool summary_only, outputStream* output, size_t scale) {
  assert(output != nullptr, "No output stream");
   MemBaseline baseline;
-  baseline.baseline(summary_only);
+  bool success = baseline.baseline(summary_only, output);
+  if (!success) {
+    output->print_cr("Failed to construct a baseline");
+  }
   if (summary_only) {
     MemSummaryReporter rpt(baseline, output, scale);
     rpt.report();

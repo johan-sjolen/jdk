@@ -114,7 +114,7 @@ void MemBaseline::baseline_summary() {
   _metaspace_stats = MetaspaceUtils::get_combined_statistics();
 }
 
-bool MemBaseline::baseline_allocation_sites() {
+bool MemBaseline::baseline_allocation_sites(outputStream* out = nullptr) {
   // Malloc allocation sites
   MallocAllocationSiteWalker malloc_walker;
   if (!MallocSiteTable::walk_malloc_site(&malloc_walker)) {
@@ -131,6 +131,7 @@ bool MemBaseline::baseline_allocation_sites() {
     MemTracker::NmtVirtualMemoryLocker locker;
     _vma_allocations = new (mtNMT, std::nothrow) RegionsTree(*VirtualMemoryTracker::Instance::tree());
     if (_vma_allocations == nullptr)  {
+      out->print_cr("Allocation failed");
       return false;
     }
   }
@@ -144,7 +145,7 @@ bool MemBaseline::baseline_allocation_sites() {
   return true;
 }
 
-void MemBaseline::baseline(bool summaryOnly) {
+bool MemBaseline::baseline(bool summaryOnly, outputStream* out = nullptr) {
   reset();
 
   _instance_class_count = ClassLoaderDataGraph::num_instance_classes();
@@ -157,9 +158,11 @@ void MemBaseline::baseline(bool summaryOnly) {
   // baseline details
   if (!summaryOnly &&
       MemTracker::tracking_level() == NMT_detail) {
-    baseline_allocation_sites();
+    bool success = baseline_allocation_sites();
     _baseline_type = Detail_baselined;
+    return success;
   }
+  return true;
 }
 
 int compare_allocation_site(const VirtualMemoryAllocationSite& s1,
@@ -167,12 +170,13 @@ int compare_allocation_site(const VirtualMemoryAllocationSite& s1,
   return s1.call_stack()->compare(*s2.call_stack());
 }
 
-bool MemBaseline::aggregate_virtual_memory_allocation_sites() {
+bool MemBaseline::aggregate_virtual_memory_allocation_sites(outputStream* out = nullptr) {
   SortedLinkedList<VirtualMemoryAllocationSite, compare_allocation_site> allocation_sites;
 
   VirtualMemoryAllocationSite* site;
   bool failed_oom = false;
   _vma_allocations->visit_reserved_regions([&](ReservedMemoryRegion& rgn) {
+    if (out) out->print_cr("%#lx %#lx", (uintptr_t)rgn.base(), (uintptr_t)rgn.end());
     VirtualMemoryAllocationSite tmp(*rgn.call_stack(), rgn.mem_tag());
     site = allocation_sites.find(tmp);
     if (site == nullptr) {
@@ -180,6 +184,7 @@ bool MemBaseline::aggregate_virtual_memory_allocation_sites() {
         allocation_sites.add(tmp);
       if (node == nullptr) {
         failed_oom = true;
+        if (out) out->print_cr("oom");
         return false;
       }
       site = node->data();

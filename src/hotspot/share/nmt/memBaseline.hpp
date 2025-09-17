@@ -89,7 +89,7 @@ class MemBaseline {
     _baseline_type(Not_baselined) {
   }
 
-  void baseline(bool summaryOnly = true);
+  bool baseline(bool summaryOnly = true, outputStream* out);
 
   BaselineType baseline_type() const { return _baseline_type; }
 
@@ -194,10 +194,10 @@ class MemBaseline {
   void baseline_summary();
 
   // Baseline allocation sites (detail tracking only)
-  bool baseline_allocation_sites();
+  bool baseline_allocation_sites(outputStream* out);
 
   // Aggregate virtual memory allocation by allocation sites
-  bool aggregate_virtual_memory_allocation_sites();
+  bool aggregate_virtual_memory_allocation_sites(outputStream* out);
 
   // Sorting allocation sites in different orders
   // Sort allocation sites in size order
