@@ -136,7 +136,7 @@ bool MemBaseline::baseline_allocation_sites(outputStream* out = nullptr) {
     }
   }
 
-  if (!aggregate_virtual_memory_allocation_sites()) {
+  if (!aggregate_virtual_memory_allocation_sites(out)) {
     return false;
   }
   // Virtual memory allocation sites are aggregrated in call stack order
@@ -145,7 +145,7 @@ bool MemBaseline::baseline_allocation_sites(outputStream* out = nullptr) {
   return true;
 }
 
-bool MemBaseline::baseline(bool summaryOnly, outputStream* out = nullptr) {
+bool MemBaseline::baseline(bool summaryOnly, outputStream* out) {
   reset();
 
   _instance_class_count = ClassLoaderDataGraph::num_instance_classes();

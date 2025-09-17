@@ -89,7 +89,7 @@ class MemBaseline {
     _baseline_type(Not_baselined) {
   }
 
-  bool baseline(bool summaryOnly = true, outputStream* out);
+  bool baseline(bool summaryOnly = true, outputStream* out = nullptr);
 
   BaselineType baseline_type() const { return _baseline_type; }
 
