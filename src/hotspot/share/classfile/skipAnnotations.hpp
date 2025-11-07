@@ -64,7 +64,7 @@ private:
   AnnotationParser annotation() const;
   AnnotationParser parse_element_value() const;
 
-  bool has_failed();
+  bool has_failed() const;
 
   AnnotationParser small_step(GrowableArray<AnnotationParser>& stack, int& parsed_pos) const;
 public:
