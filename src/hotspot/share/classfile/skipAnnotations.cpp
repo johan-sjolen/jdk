@@ -87,7 +87,7 @@ AnnotationParser AnnotationParser::annotation() const {
   return transition_to(ElementValuePair);
 }
 
-bool AnnotationParser::has_failed() {
+bool AnnotationParser::has_failed() const {
   return st == Fail;
 }
 
@@ -95,6 +95,7 @@ AnnotationParser AnnotationParser::parse_element_value() const {
   AnnotationParser p = *this;
   u1 tag;
   p = p.read_u1(tag);
+  // See Table JVMS$4.7.16.1-A Interpretation of tag values as types
   switch (tag) {
     case 'B':
     case 'C':
@@ -127,14 +128,16 @@ AnnotationParser AnnotationParser::parse_element_value() const {
 
 bool AnnotationParser::small_step(GrowableArray<AnnotationParser>& stack, int& parsed_pos) const {
   AnnotationParser p = *this;
-  if (p.st == Annotation) {
+  switch (p.st) {
+  case Annotation: {
     u2 type_index, num_element_value_pairs;
     p = p.read_u2(type_index);
     p = p.read_u2(num_element_value_pairs);
     stack.push(p.element_value_pair(num_element_value_pairs));
     parsed_pos = p.pos;
     return true;
-  } else if (p.st == ElementValuePair) {
+  }
+  case ElementValuePair: {
     if (p.nevp == 0) {
       stack.push(p.done());
       parsed_pos = p.pos;
@@ -146,7 +149,8 @@ bool AnnotationParser::small_step(GrowableArray<AnnotationParser>& stack, int& p
     stack.push(recur);
     parsed_pos = recur.pos;
     return true;
-  } else if (p.st == ArrayValue) {
+  }
+  case ArrayValue: {
     if (p.nv == 0) {
       stack.push(p.done());
       parsed_pos = p.pos;
@@ -159,13 +163,14 @@ bool AnnotationParser::small_step(GrowableArray<AnnotationParser>& stack, int& p
       parsed_pos = recur.pos;
       return true;
     }
-  } else if (p.st == Done) {
+  }
+  case Done: {
     parsed_pos = p.pos;
     return true;
-  } else if (p.st == Fail) {
+  }
+  case Fail: {
     return false;
-  } else {
-    ShouldNotReachHere();
+  }
   }
 }
 

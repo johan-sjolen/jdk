@@ -27,10 +27,9 @@
 template<typename E>
 class GrowableArray;
 
-// Annotations in the classfile are defined to have a mutually recursive schema (see JVMS§4.7.16).
-// Parsing of this structure is done on the Java-side, for the most part, but certain annotations are parsed by the VM.
-// So, regardless, we have to parse this structure.
-// We do so in a recursive-descent manner, but where we have reified the stack.
+// Annotations in the classfile are defined to have a mutually recursive schema (see JVMS§4.7.16 The RuntimeVisibleAnnotations Attribute).
+// This class parses an annotation of the RuntimeVisibleAnnotations attribute.
+// We do so in a recursive-descent manner, but where we manually handle the stack..
 // We define a few simple parsers, which small_step uses to produce the next step in the parsing.
 // The skip_annotation function becomes our driving function, setting up the stack and initial parsing context.
 struct AnnotationParser {
