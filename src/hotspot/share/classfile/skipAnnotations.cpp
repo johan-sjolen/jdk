@@ -28,7 +28,7 @@
 #include "utilities/globalDefinitions.hpp"
 #include "utilities/growableArray.hpp"
 
-AnnotationParser AnnotationParser::skip(int n_bytes) {
+AnnotationParser AnnotationParser::skip(int n_bytes) const {
   if (st == Fail) return fail();
   if (limit - n_bytes <= pos) {
     return fail();
@@ -37,7 +37,7 @@ AnnotationParser AnnotationParser::skip(int n_bytes) {
   }
 }
 
-AnnotationParser AnnotationParser::read_u2(u2& out) {
+AnnotationParser AnnotationParser::read_u2(u2& out) const {
   if (st == Fail) return fail();
   if (limit - 2 <= pos) {
     return fail();
@@ -46,7 +46,7 @@ AnnotationParser AnnotationParser::read_u2(u2& out) {
   return skip(2);
 }
 
-AnnotationParser AnnotationParser::read_u1(u1& out) {
+AnnotationParser AnnotationParser::read_u1(u1& out) const {
   if (st == Fail) return fail();
   if (limit - 1 <= pos) {
     return fail();
@@ -55,35 +55,44 @@ AnnotationParser AnnotationParser::read_u1(u1& out) {
   return skip(1);
 }
 
-AnnotationParser AnnotationParser::transition_to(State next_state) {
+AnnotationParser AnnotationParser::transition_to(State next_state) const {
   if (st == Fail) return fail();
   return AnnotationParser{buf, pos, limit, next_state, nevp, nv};
 }
 
-AnnotationParser AnnotationParser::transition_to(State next_state, u2 v) {
+AnnotationParser AnnotationParser::transition_to(State next_state, u2 v) const {
   if (st == Fail) return fail();
   if (next_state == ArrayValue) return AnnotationParser{buf, pos, limit, next_state, nevp, v};
   if (next_state == ElementValuePair) return AnnotationParser{buf, pos, limit, next_state, v, nv};
   ShouldNotReachHere();
 }
 
-AnnotationParser AnnotationParser::fail() {
+AnnotationParser AnnotationParser::fail() const {
   return AnnotationParser{buf, limit, limit, Fail, 0, 0};
 }
 
-AnnotationParser AnnotationParser::done() {
+AnnotationParser AnnotationParser::done() const {
   return transition_to(Done);
 }
 
-AnnotationParser AnnotationParser::array_value(u2 num_values) {
+AnnotationParser AnnotationParser::array_value(u2 num_values) const {
   return transition_to(ArrayValue, num_values);
 }
 
-AnnotationParser AnnotationParser::element_value_pair(u2 num_evp) {
+AnnotationParser AnnotationParser::element_value_pair(u2 num_evp) const {
   return transition_to(ElementValuePair, num_evp);
 }
 
-AnnotationParser AnnotationParser::parse_element_value(AnnotationParser p) {
+AnnotationParser AnnotationParser::annotation() const {
+  return transition_to(ElementValuePair);
+}
+
+bool AnnotationParser::has_failed() {
+  return st == Fail;
+}
+
+AnnotationParser AnnotationParser::parse_element_value() const {
+  AnnotationParser p = *this;
   u1 tag;
   p = p.read_u1(tag);
   switch (tag) {
@@ -116,8 +125,8 @@ AnnotationParser AnnotationParser::parse_element_value(AnnotationParser p) {
   }
 }
 
-bool AnnotationParser::small_step(AnnotationParser p, GrowableArray<AnnotationParser>& stack,
-                                  int& parsed_pos) {
+AnnotationParser AnnotationParser::small_step(GrowableArray<AnnotationParser>& stack, int& parsed_pos) const {
+  AnnotationParser p = *this;
   if (p.st == Annotation) {
     u2 type_index, num_element_value_pairs;
     p = p.read_u2(type_index);
@@ -144,7 +153,7 @@ bool AnnotationParser::small_step(AnnotationParser p, GrowableArray<AnnotationPa
       return true;
     } else {
       p.nv--;
-      AnnotationParser recur = parse_element_value(p);
+      AnnotationParser recur = p.parse_element_value(p);
       stack.push(p);
       stack.push(recur);
       parsed_pos = recur.pos;
@@ -168,8 +177,8 @@ int AnnotationParser::skip_annotation(const u1* buf, int limit, int pos) {
   while (!stack.is_empty()) {
     AnnotationParser p = stack.pop();
     p.pos = current_pos;
-    bool success = p.small_step(p, stack, current_pos);
-    if (!success) {
+    p  = p.small_step(p, stack, current_pos);
+    if (p.has_failed()) {
       return limit;
     }
   }

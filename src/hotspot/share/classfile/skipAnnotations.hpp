@@ -51,22 +51,22 @@ struct AnnotationParser {
   u2 nv;    // Used only if st == ArrayValue (tracks remaining number of values)
 
 private:
-  AnnotationParser skip(int n_bytes);
-  AnnotationParser read_u2(u2& out);
-  AnnotationParser read_u1(u1& out);
+  AnnotationParser skip(int n_bytes) const;
+  AnnotationParser read_u2(u2& out) const;
+  AnnotationParser read_u1(u1& out) const;
 
-  AnnotationParser transition_to(State next_state);
-  AnnotationParser transition_to(State next_state, u2 v);
-  AnnotationParser fail();
-  AnnotationParser done();
-  AnnotationParser array_value(u2 num_values);
-  AnnotationParser element_value_pair(u2 num_evp);
-  AnnotationParser annotation() { return transition_to(ElementValuePair); }
+  AnnotationParser transition_to(State next_state) const;
+  AnnotationParser transition_to(State next_state, u2 v) const;
+  AnnotationParser fail() const;
+  AnnotationParser done() const;
+  AnnotationParser array_value(u2 num_values) const;
+  AnnotationParser element_value_pair(u2 num_evp) const;
+  AnnotationParser annotation() const;
+  AnnotationParser parse_element_value() const;
 
-  static AnnotationParser parse_element_value(AnnotationParser p);
-  static bool small_step(AnnotationParser p, GrowableArray<AnnotationParser>& stack,
-                         int& parsed_pos);
+  bool has_failed();
 
+  AnnotationParser small_step(GrowableArray<AnnotationParser>& stack, int& parsed_pos) const;
 public:
   static int skip_annotation(const u1* buf, int limit, int pos);
 };
