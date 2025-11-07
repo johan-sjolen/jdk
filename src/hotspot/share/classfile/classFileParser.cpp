@@ -32,6 +32,7 @@
 #include "classfile/javaClasses.inline.hpp"
 #include "classfile/moduleEntry.hpp"
 #include "classfile/packageEntry.hpp"
+#include "classfile/skipAnnotations.hpp"
 #include "classfile/symbolTable.hpp"
 #include "classfile/systemDictionary.hpp"
 #include "classfile/verificationType.hpp"
@@ -1015,76 +1016,6 @@ public:
   void apply_to(InstanceKlass* ik);
 };
 
-
-static int skip_annotation_value(const u1*, int, int); // fwd decl
-
-// Safely increment index by val if does not pass limit
-#define SAFE_ADD(index, limit, val) \
-if (index >= limit - val) return limit; \
-index += val;
-
-// Skip an annotation.  Return >=limit if there is any problem.
-static int skip_annotation(const u1* buffer, int limit, int index) {
-  assert(buffer != nullptr, "invariant");
-  // annotation := atype:u2 do(nmem:u2) {member:u2 value}
-  // value := switch (tag:u1) { ... }
-  SAFE_ADD(index, limit, 4); // skip atype and read nmem
-  int nmem = Bytes::get_Java_u2((address)buffer + index - 2);
-  while (--nmem >= 0 && index < limit) {
-    SAFE_ADD(index, limit, 2); // skip member
-    index = skip_annotation_value(buffer, limit, index);
-  }
-  return index;
-}
-
-// Skip an annotation value.  Return >=limit if there is any problem.
-static int skip_annotation_value(const u1* buffer, int limit, int index) {
-  assert(buffer != nullptr, "invariant");
-
-  // value := switch (tag:u1) {
-  //   case B, C, I, S, Z, D, F, J, c: con:u2;
-  //   case e: e_class:u2 e_name:u2;
-  //   case s: s_con:u2;
-  //   case [: do(nval:u2) {value};
-  //   case @: annotation;
-  //   case s: s_con:u2;
-  // }
-  SAFE_ADD(index, limit, 1); // read tag
-  const u1 tag = buffer[index - 1];
-  switch (tag) {
-    case 'B':
-    case 'C':
-    case 'I':
-    case 'S':
-    case 'Z':
-    case 'D':
-    case 'F':
-    case 'J':
-    case 'c':
-    case 's':
-      SAFE_ADD(index, limit, 2);  // skip con or s_con
-      break;
-    case 'e':
-      SAFE_ADD(index, limit, 4);  // skip e_class, e_name
-      break;
-    case '[':
-    {
-      SAFE_ADD(index, limit, 2); // read nval
-      int nval = Bytes::get_Java_u2((address)buffer + index - 2);
-      while (--nval >= 0 && index < limit) {
-        index = skip_annotation_value(buffer, limit, index);
-      }
-    }
-    break;
-    case '@':
-      index = skip_annotation(buffer, limit, index);
-      break;
-    default:
-      return limit;  //  bad tag byte
-  }
-  return index;
-}
-
 // Sift through annotations, looking for those significant to the VM:
 static void parse_annotations(const ConstantPool* const cp,
                               const u1* buffer, int limit,
@@ -1122,7 +1053,7 @@ static void parse_annotations(const ConstantPool* const cp,
   // Cannot add min_size to index in case of overflow MAX_INT
   while ((--nann) >= 0 && (index - 2 <= limit - min_size)) {
     int index0 = index;
-    index = skip_annotation(buffer, limit, index);
+    index = AnnotationParser::skip_annotation(buffer, limit, index);
     const u1* const abase = buffer + index0;
     const int atype = Bytes::get_Java_u2((address)abase + atype_off);
     const int count = Bytes::get_Java_u2((address)abase + count_off);
