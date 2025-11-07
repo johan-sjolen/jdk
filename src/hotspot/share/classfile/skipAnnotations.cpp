@@ -125,7 +125,7 @@ AnnotationParser AnnotationParser::parse_element_value() const {
   }
 }
 
-AnnotationParser AnnotationParser::small_step(GrowableArray<AnnotationParser>& stack, int& parsed_pos) const {
+bool AnnotationParser::small_step(GrowableArray<AnnotationParser>& stack, int& parsed_pos) const {
   AnnotationParser p = *this;
   if (p.st == Annotation) {
     u2 type_index, num_element_value_pairs;
@@ -141,7 +141,7 @@ AnnotationParser AnnotationParser::small_step(GrowableArray<AnnotationParser>& s
       return true;
     }
     p.nevp--;
-    AnnotationParser recur = parse_element_value(p.skip(2));
+    AnnotationParser recur = p.skip(2).parse_element_value();
     stack.push(p);
     stack.push(recur);
     parsed_pos = recur.pos;
@@ -153,7 +153,7 @@ AnnotationParser AnnotationParser::small_step(GrowableArray<AnnotationParser>& s
       return true;
     } else {
       p.nv--;
-      AnnotationParser recur = p.parse_element_value(p);
+      AnnotationParser recur = p.parse_element_value();
       stack.push(p);
       stack.push(recur);
       parsed_pos = recur.pos;
@@ -177,8 +177,8 @@ int AnnotationParser::skip_annotation(const u1* buf, int limit, int pos) {
   while (!stack.is_empty()) {
     AnnotationParser p = stack.pop();
     p.pos = current_pos;
-    p  = p.small_step(p, stack, current_pos);
-    if (p.has_failed()) {
+    bool success = p.small_step(stack, current_pos);
+    if (!success) {
       return limit;
     }
   }

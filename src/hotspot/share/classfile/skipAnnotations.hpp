@@ -66,7 +66,7 @@ private:
 
   bool has_failed() const;
 
-  AnnotationParser small_step(GrowableArray<AnnotationParser>& stack, int& parsed_pos) const;
+  bool small_step(GrowableArray<AnnotationParser>& stack, int& parsed_pos) const;
 public:
   static int skip_annotation(const u1* buf, int limit, int pos);
 };
