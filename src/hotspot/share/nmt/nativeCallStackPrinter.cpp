@@ -44,6 +44,7 @@ void NativeCallStackPrinter::print_stack(const NativeCallStack* stack) const {
     if (created) {
       stringStream ss(4 * K);
       stack->print_frame(&ss, pc);
+      ss.cr();
       (*cached_frame_text) = ss.as_string(&_text_storage);
     }
     _out->print_raw_cr(*cached_frame_text);
