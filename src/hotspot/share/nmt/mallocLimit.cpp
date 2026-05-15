@@ -93,17 +93,17 @@ public:
     ss.print("%.*s", (int)(end - _p), _p);
     MemTag mem_tag = MemTagFactory::AbsentTag;
     const char* option = ss.base();
-    bool user_defined_tag = option[0] == '@';
-    option = user_defined_tag ? option + 1 : option; // skip @ if user defined tag
+
+    // Prioritize VM-defined, static MemTags
     bool is_enum_tag = MemTagFactory::is_enum_name(option, &mem_tag);
-    if (!user_defined_tag && !is_enum_tag) {
-      log_warning(nmt)("Unknown memory tag '%s' in malloc-limit option", option);
-      return false;
-    }
-    if (user_defined_tag && !is_enum_tag) {
+    if (is_enum_tag) {
+      log_info(nmt)("parsing malloc-limit string of '%s', found: %d", ss.base(), (int)mem_tag);
+    } else {
+      // OK, not a VM tag, assume it's a JDK tag and it describes the tag name, not it's HRN.
+      // We have to create the tag, as it doesn't exist at this moment.
       mem_tag = MemTagFactory::tag(option);
+      log_info(nmt)("parsing malloc-limit string of '%s', created: %d", ss.base(), (int)mem_tag);
     }
-    log_info(nmt)("parsing malloc-limit string of '%s', found: %d", ss.base(), (int)mem_tag);
     *out = mem_tag;
     _p  = end;
     return true;

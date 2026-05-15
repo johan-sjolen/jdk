@@ -130,7 +130,8 @@ int MemTagFactory::Instance::number_of_tags() const {
 }
 
 bool MemTagFactory::Instance::is_enum_name(const char* option, MemTag* out) const {
-  for (int i = 0; i < MIN2(NMTUtil::number_of_enum_tags(), _entries.length()); i++) {
+  assert(NMTUtil::number_of_enum_tags() <= _entries.length(), "must be");
+  for (int i = 0; i < _entries.length(); i++) {
     const char* enum_name = _entries.at(i).name;
     const char* enum_name_without_mt = enum_name + 2; // skip "mt" prefix
     const char* hr_name = _human_readable_names.at(i);
