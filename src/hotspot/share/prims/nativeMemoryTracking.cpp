@@ -76,7 +76,7 @@ JVM_ENTRY(jlong, NMT_allocate0(JNIEnv *env, jobject ignored_this, jlong size, jl
   }
 
 #ifndef _LP64
-  assert(sizeof(jlong) > sizeof(size_t), "must be");
+  static_assert(sizeof(jlong) > sizeof(size_t), "must be");
   if (size > static_cast<jlong>(std::numeric_limits<size_t>::max())) {
     return 0;
   }
