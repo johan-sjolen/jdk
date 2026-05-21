@@ -39,7 +39,7 @@ uint32_t MemTagFactory::Instance::string_hash(const char* t) const {
 }
 
 void MemTagFactory::Instance::put_tag(MemTag tag, const char* name) {
-  assert(strlen(name) < 4096, "mustn't be ridiculously long");
+  assert(strlen(name) < maximum_tag_length, "mustn't be ridiculously long");
   int bucket = string_hash(name) % _table_size;
   const char* name_copy = os::strdup(name, mtNMT);
   Entry nentry(tag, _table[bucket], name_copy);
@@ -98,6 +98,7 @@ const char* MemTagFactory::Instance::name_of(MemTag tag) const {
 }
 
 void MemTagFactory::Instance::set_human_readable_name_of(MemTag tag, const char* hrn) {
+  assert(strlen(hrn) < maximum_tag_length, "must be");
   MemTagI i = index(tag);
   const char* copy = os::strdup(hrn);
   const char*& ref = _human_readable_names.at_grow(i, nullptr);
@@ -113,9 +114,12 @@ const char* MemTagFactory::Instance::human_readable_name_of(MemTag tag) const {
   return nullptr;
 }
 
+// We use this for our seed
+static constexpr size_t BigPrime = 5000002429;
+
 MemTagFactory::Instance::Instance()
     : _entries(), _table_size(nr_of_buckets), _table(nullptr),
-      _human_readable_names(), _seed(5000002429), _number_of_tags(0) {
+      _human_readable_names(), _seed(BigPrime), _number_of_tags(0) {
   _table = NEW_C_HEAP_ARRAY(EntryRef, _table_size, mtNMT);
   for (int i = 0; i < _table_size; i++) {
     _table[i] = Nil;
@@ -130,7 +134,6 @@ int MemTagFactory::Instance::number_of_tags() const {
 }
 
 bool MemTagFactory::Instance::is_enum_name(const char* option, MemTag* out) const {
-  assert(NMTUtil::number_of_enum_tags() <= _entries.length(), "must be");
   for (int i = 0; i < _entries.length(); i++) {
     const char* enum_name = _entries.at(i).name;
     const char* enum_name_without_mt = enum_name + 2; // skip "mt" prefix
@@ -151,4 +154,8 @@ const char* MemTagFactory::Instance::enum_name_of(MemTag tag) const {
     return _entries.at(i).name;
   }
   return nullptr;
+}
+
+void MemTagFactory::assert_valid_enum_tag_length() {
+  assert(NMTUtil::number_of_enum_tags() <= _instance->number_of_tags(), "must be");
 }

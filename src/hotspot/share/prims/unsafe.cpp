@@ -102,21 +102,6 @@
 
 #define UNSAFE_END JVM_END
 
-
-static inline void* addr_from_java(jlong addr) {
-  // This assert fails in a variety of ways on 32-bit systems.
-  // It is impossible to predict whether native code that converts
-  // pointers to longs will sign-extend or zero-extend the addresses.
-  //assert(addr == (uintptr_t)addr, "must not be odd high bits");
-  return (void*)(uintptr_t)addr;
-}
-
-static inline jlong addr_to_java(void* p) {
-  assert(p == (void*)(uintptr_t)p, "must not be odd high bits");
-  return (uintptr_t)p;
-}
-
-
 // Note: The VM's obj_field and related accessors use byte-scaled
 // ("unscaled") offsets, just as the unsafe methods do.
 
@@ -355,27 +340,6 @@ UNSAFE_ENTRY(jobject, Unsafe_AllocateInstance(JNIEnv *env, jobject unsafe, jclas
   JvmtiVMObjectAllocEventCollector oam;
   instanceOop i = InstanceKlass::allocate_instance(JNIHandles::resolve_non_null(cls), CHECK_NULL);
   return JNIHandles::make_local(THREAD, i);
-} UNSAFE_END
-
-UNSAFE_LEAF(jlong, Unsafe_AllocateMemory0(JNIEnv *env, jobject unsafe, jlong size)) {
-  size_t sz = (size_t)size;
-
-  assert(is_aligned(sz, HeapWordSize), "sz not aligned");
-
-  void* x = os::malloc(sz, mtOther);
-
-  return addr_to_java(x);
-} UNSAFE_END
-
-UNSAFE_LEAF(jlong, Unsafe_ReallocateMemory0(JNIEnv *env, jobject unsafe, jlong addr, jlong size)) {
-  void* p = addr_from_java(addr);
-  size_t sz = (size_t)size;
-
-  assert(is_aligned(sz, HeapWordSize), "sz not aligned");
-
-  void* x = os::realloc(p, sz, mtOther);
-
-  return addr_to_java(x);
 } UNSAFE_END
 
 UNSAFE_LEAF(void, Unsafe_FreeMemory0(JNIEnv *env, jobject unsafe, jlong addr)) {
@@ -883,8 +847,6 @@ static JNINativeMethod jdk_internal_misc_Unsafe_methods[] = {
     DECLARE_GETPUTOOP(Float, F),
     DECLARE_GETPUTOOP(Double, D),
 
-    {CC "allocateMemory0",    CC "(J)" ADR,              FN_PTR(Unsafe_AllocateMemory0)},
-    {CC "reallocateMemory0",  CC "(" ADR "J)" ADR,       FN_PTR(Unsafe_ReallocateMemory0)},
     {CC "freeMemory0",        CC "(" ADR ")V",           FN_PTR(Unsafe_FreeMemory0)},
 
     {CC "objectFieldOffset0", CC "(" FLD ")J",           FN_PTR(Unsafe_ObjectFieldOffset0)},

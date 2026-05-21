@@ -30,6 +30,7 @@
 #include "runtime/interfaceSupport.inline.hpp"
 #include "runtime/jniHandles.hpp"
 #include "runtime/jniHandles.inline.hpp"
+#include "prims/unsafe.hpp"
 
 #include <limits>
 
@@ -37,7 +38,6 @@
 #define FN_PTR(f) CAST_FROM_FN_PTR(void*, &f)
 
 JVM_ENTRY(jlong, NMT_makeTag(JNIEnv *env, jobject ignored_this, jobject tag_name_string)) {
-  constexpr static int max_tagname_len = 1024;
   if (!MemTracker::enabled()) {
     return (jlong)mtNone;
   }
@@ -54,7 +54,7 @@ JVM_ENTRY(jlong, NMT_makeTag(JNIEnv *env, jobject ignored_this, jobject tag_name
   }
   typeArrayOop value = java_lang_String::value(oop);
   int length = java_lang_String::length(oop, value);
-  if (length > max_tagname_len) {
+  if (length > MemTagFactory::maximum_tag_length) {
     return -1;
   }
 
@@ -83,7 +83,7 @@ JVM_ENTRY(jlong, NMT_allocate0(JNIEnv *env, jobject ignored_this, jlong size, jl
 #endif
 
   MemTag tag = enabled ? (MemTag)mem_tag : mtOther;
-  return (jlong)os::malloc(size, tag);
+  return addr_to_java(os::malloc(size, tag));
 }
 JVM_END
 
@@ -92,9 +92,31 @@ JVM_ENTRY(jboolean, NMT_isNMTEnabled(JNIEnv *env, jobject ignored_this)) {
 }
 JVM_END
 
+JVM_ENTRY(jlong, NMT_reallocate0(JNIEnv *env, jobject ignored_this, jlong pointer, jlong size, jlong mem_tag)) {
+  if (size < 0) {
+    return 0;
+  }
+  bool enabled = MemTracker::enabled();
+  if (enabled && (mem_tag < 0 || MemTagFactory::number_of_tags() <= mem_tag)) {
+    return 0;
+  }
+
+#ifndef _LP64
+  static_assert(sizeof(jlong) > sizeof(size_t), "must be");
+  if (size > static_cast<jlong>(std::numeric_limits<size_t>::max())) {
+    return 0;
+  }
+#endif
+
+  MemTag tag = enabled ? (MemTag)mem_tag : mtOther;
+  return addr_to_java(os::realloc(addr_from_java(pointer), size, tag));
+}
+JVM_END
+
 static JNINativeMethod NMT_methods[] = {
   {CC "makeTag", CC "(Ljava/lang/String;)J", FN_PTR(NMT_makeTag)},
   {CC "allocate0", CC "(JJ)J", FN_PTR(NMT_allocate0)},
+  {CC "reallocate0", CC "(JJJ)J", FN_PTR(NMT_reallocate0)},
   {CC "isNMTEnabled", CC "()Z", FN_PTR(NMT_isNMTEnabled)}
 };
 

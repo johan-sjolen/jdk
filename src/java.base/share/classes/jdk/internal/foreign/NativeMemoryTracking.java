@@ -47,6 +47,7 @@ public class NativeMemoryTracking {
 
     private static native long makeTag(String name);
     private static native long allocate0(long size, long mem_tag);
+    private static native long reallocate0(long pointer, long size, long mem_tag);
     private static native boolean isNMTEnabled();
     private static native void registerNatives();
 
@@ -56,22 +57,12 @@ public class NativeMemoryTracking {
         nmtEnabled = isNMTEnabled();
     }
 
-    public static long allocate(long size) throws OutOfMemoryError {
-        if (size < 0 ||
-            addressSize == 4 && size >>> 32 != 0) {
-            throw new IllegalArgumentException();
-        }
+    public static long reallocate(long pointer, long size) throws OutOfMemoryError {
+        return reallocate0(pointer, size, currentTag());
+    }
 
-        // Mimic Unsafe::allocateMemory
-        if (size == 0) {
-            return 0;
-        }
-
-        long ptr = allocate0(size, currentTag());
-        if (ptr == 0) {
-            throw new OutOfMemoryError();
-        }
-        return ptr;
+    public static long allocate(long size) {
+        return allocate0(size, currentTag());
     }
 
     public static final class Tag {

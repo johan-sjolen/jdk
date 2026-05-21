@@ -27,6 +27,7 @@
 #define SHARE_PRIMS_UNSAFE_HPP
 
 #include "jni.h"
+#include "utilities/globalDefinitions.hpp"
 
 extern "C" {
   void JNICALL JVM_RegisterJDKInternalMiscUnsafeMethods(JNIEnv *env, jclass unsafecls);
@@ -35,5 +36,19 @@ extern "C" {
 jlong Unsafe_field_offset_to_byte_offset(jlong field_offset);
 
 jlong Unsafe_field_offset_from_byte_offset(jlong byte_offset);
+
+inline void* addr_from_java(jlong addr) {
+  // This assert fails in a variety of ways on 32-bit systems.
+  // It is impossible to predict whether native code that converts
+  // pointers to longs will sign-extend or zero-extend the addresses.
+  //assert(addr == (uintptr_t)addr, "must not be odd high bits");
+  return (void*)(uintptr_t)addr;
+}
+
+inline jlong addr_to_java(void* p) {
+  assert(p == (void*)(uintptr_t)p, "must not be odd high bits");
+  return (uintptr_t)p;
+}
+
 
 #endif // SHARE_PRIMS_UNSAFE_HPP

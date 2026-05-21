@@ -19,7 +19,7 @@
  * Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
  * or visit www.oracle.com if you need additional information or have any
  * questions.
- *
+o *
  */
 
 #include "classfile/altHashing.hpp"
@@ -89,9 +89,14 @@ public:
     const char* enum_name_of(MemTag tag) const;
   };
 
+private:
   static DeferredStatic<Instance> _instance;
+  void assert_valid_enum_tag_length();
 
+public:
   constexpr static const MemTag AbsentTag = Instance::AbsentTag;
+  // The maximum size of a tag name.
+  static const int maximum_tag_length = 1024;
 
   static void initialize() {
     NmtMemTagLocker nvml;

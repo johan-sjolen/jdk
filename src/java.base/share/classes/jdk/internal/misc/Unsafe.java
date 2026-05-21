@@ -694,7 +694,7 @@ public final class Unsafe {
             return 0;
         }
 
-        long p = (address == 0) ? allocateMemory0(bytes) : reallocateMemory0(address, bytes);
+        long p = (address == 0) ? NativeMemoryTracking.allocate(bytes) : NativeMemoryTracking.reallocate(address, bytes);
         if (p == 0) {
             throw new OutOfMemoryError("Unable to allocate " + bytes + " bytes");
         }
@@ -3861,10 +3861,6 @@ public final class Unsafe {
     private static int convEndian(boolean big, int n)     { return big == BIG_ENDIAN ? n : Integer.reverseBytes(n)  ; }
     private static long convEndian(boolean big, long n)   { return big == BIG_ENDIAN ? n : Long.reverseBytes(n)     ; }
 
-
-
-    private native long allocateMemory0(long bytes);
-    private native long reallocateMemory0(long address, long bytes);
     private native void freeMemory0(long address);
     @IntrinsicCandidate
     private native void setMemory0(Object o, long offset, long bytes, byte value);
