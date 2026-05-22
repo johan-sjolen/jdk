@@ -137,9 +137,12 @@ bool MemTagFactory::Instance::is_enum_name(const char* option, MemTag* out) cons
   for (int i = 0; i < _entries.length(); i++) {
     const char* enum_name = _entries.at(i).name;
     const char* enum_name_without_mt = enum_name + 2; // skip "mt" prefix
-    const char* hr_name = _human_readable_names.at(i);
-    if (::strcasecmp(hr_name, option) == 0 ||
-        ::strcasecmp(enum_name, option) == 0 ||
+    const char* hr_name = nullptr;
+    if (_human_readable_names.length() > i) {
+      hr_name = _human_readable_names.at(i);
+    }
+    if ((hr_name != nullptr && ::strcasecmp(hr_name, option) == 0) ||
+        ::strcasecmp(enum_name, option) == 0                       ||
         ::strcasecmp(enum_name_without_mt, option) == 0) {
       *out = (MemTag)i;
       return true;
