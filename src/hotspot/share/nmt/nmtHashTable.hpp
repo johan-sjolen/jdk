@@ -134,9 +134,7 @@ private:
     ShouldNotReachHere();
   }
 
-  bool grow_and_rehash() {
-    int new_length = _length * 2;
-
+  bool grow_and_rehash(int new_length) {
     KVElement* new_members = allocate_kvelement_array(new_length);
     if (new_members == nullptr) {
       if constexpr (alloc_failmode == AllocFailStrategy::EXIT_OOM) {
@@ -177,8 +175,16 @@ private:
     return true;
   }
 
+  bool grow_and_rehash() {
+    grow_and_rehash(_length * 2);
+  }
+
   bool has_capacity_for_insert() const {
     return (_occupied + 1) / double(_length) < load_factor;
+  }
+
+  int index_of(const KVElement* kv) {
+    return kv - _members;
   }
 
  public:
@@ -189,6 +195,11 @@ private:
     clear_members(small(), small_size);
   }
 
+  OpenAddressedHashTable(HashFun hash, EqualsFun equals, int expected_capacity)
+  : OpenAddressedHashTable(hash, equals) {
+    grow_and_rehash(expected_capacity);
+  }
+
   ~OpenAddressedHashTable() {
     if (_members != small()) {
       FREE_C_HEAP_ARRAY(_members);
@@ -197,6 +208,62 @@ private:
 
   int occupied() const {
     return _occupied;
+  }
+
+  KVElement* find(const KVElement& kv) {
+    return const_cast<KVElement*>(find(kv));
+  }
+  const KVElement* find(const KVElement& kv) const {
+    int index = _hash(kv) & (_length - 1);
+    for (int probes = 0; probes < _length; probes++) {
+      KVElement* elem = &_members[index];
+      if (!is_occupied(index)) {
+        return nullptr;
+      }
+      if (_equals(*elem, kv)) {
+        return elem;
+      }
+    }
+  }
+
+  bool contains(const KVElement& kv) const {
+    const KVElement* found = find(kv);
+    return found != nullptr;
+  }
+
+  bool erase(const KVElement& kv) {
+    KVElement* found = find(kv);
+    if (found == nullptr) return false;
+    const int index = index_of(found);
+    _occupied_map.clear_bit(index);
+    _occupied--;
+
+    // We now have a fairly complex operation remaining, where we need to move slots backwards.
+    // Here's an example:
+    // Slot:    0          1          2          3
+    // Entry:   A(home 0)  B(home 0)  C(home 1)  empty
+    // If we remove A, then B needs to be moved to slot 0, and C needs to be moved to slot 1
+    // as slot 3 is empty, we can stop.
+    const uint32_t mask = _length - 1;
+    uint32_t hole_index = index;
+    uint32_t scanning_index = (index + 1) & mask;
+    while (is_occupied(scanning_index)) {
+      const KVElement& kv = _members[scanning_index];
+      // Let's say we have Home -> ... -> Hole -> ... -> Entry
+      // then insertion must have probed the Hole before the Entry, and found it to
+      // be filled. Therefore, we must move the KV in Entry to the Hole.
+      uint32_t home_bucket = _hash(kv) & mask;
+      uint32_t distance_to_hole = (hole_index - home_bucket) & mask;
+      uint32_t distance_to_entry = (scanning_index - home_bucket) & mask;
+      if (distance_to_hole < distance_to_entry) {
+        _occupied_map.set_bit(hole_index);
+        ::new(&_members[hole_index]) KVElement(kv);
+        _occupied_map.clear_bit(scanning_index);
+        hole_index = scanning_index;
+      }
+      scanning_index = (scanning_index + 1) & mask;
+    }
+    return true;
   }
 
   KVElement* put_if_absent(const KVElement& kv, bool* found) {
